@@ -35,3 +35,12 @@ module "vpc" {
   igw_name = "natours-igw"
   nat_name = "natours-nat"
 }
+
+module "security_groups" {
+  source = "./modules/security-groups"
+  vpc_id = module.vpc.vpc_id
+  
+  security_group_names = {
+    alb   = "natours-alb-sg"
+  }
+}
