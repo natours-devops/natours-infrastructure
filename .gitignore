@@ -1,0 +1,11 @@
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Terraform lock file (see note below)
+.terraform.lock.hcl
+
+# Terraform working directory
+.terraform/
+
+Iac - 01
