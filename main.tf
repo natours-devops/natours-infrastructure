@@ -1,3 +1,8 @@
+locals {
+  project = "natours"
+}
+
+
 module "vpc" {
   source = "./modules/vpc"
 
@@ -44,3 +49,12 @@ module "security_groups" {
     alb   = "natours-alb-sg"
   }
 }
+
+  module "iam" {
+    source                  = "./modules/iam"
+    cluster_name            = "natours"
+    # cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
+    # sqs_queue_arn           = module.sqs.queue_arn
+    # sqs_dlq_arn             = module.sqs.dlq_arn
+}
+
