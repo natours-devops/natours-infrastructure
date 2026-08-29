@@ -58,3 +58,16 @@ module "security_groups" {
     # sqs_dlq_arn             = module.sqs.dlq_arn
 }
 
+module "eks" {
+  source           = "./modules/eks"
+  cluster_name     = "natours"
+  vpc_id           = module.vpc.vpc_id
+  private_subnets  = module.vpc.private_subnet_ids
+  cluster_role_arn = module.iam.cluster_role_arn
+  node_role_arn    = module.iam.node_role_arn
+}
+
+# output "private_subnet_ids" {
+#   description = "Private subnet IDs passed to the root"
+#   value       = module.vpc.private_subnet_ids
+# }
