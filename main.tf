@@ -1,5 +1,5 @@
 locals {
-  project = "natours"
+  project_name = "natours"
 }
 
 
@@ -85,12 +85,9 @@ module "ecr" {
   image_count_to_keep = 10
 }
 
-# output "private_subnet_ids" {
-#   description = "Private subnet IDs passed to the root"
-#   value       = module.vpc.private_subnet_ids
-# }
-
-output "ecr_repository_urls" {
-  description = "All ECR repository URLs"
-  value       = module.ecr.repository_urls
+module "sqs" {
+  source                        = "./modules/sqs"
+  project_name                  = "natours"
+  booking_service_role_arn      = module.iam.booking_service_role_arn
+  notification_service_role_arn = module.iam.notification_service_role_arn
 }
