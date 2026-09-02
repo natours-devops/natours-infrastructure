@@ -67,7 +67,30 @@ module "eks" {
   node_role_arn    = module.iam.node_role_arn
 }
 
+module "ecr" {
+  source = "./modules/ecr"
+
+  mutability = "IMMUTABLE"
+
+  services = [
+    "natours-frontend",
+    "natours-api-gateway",
+    "natours-auth-service",
+    "natours-tour-service",
+    "natours-review-service",
+    "natours-booking-service",
+    "natours-notification-service"
+  ]
+
+  image_count_to_keep = 10
+}
+
 # output "private_subnet_ids" {
 #   description = "Private subnet IDs passed to the root"
 #   value       = module.vpc.private_subnet_ids
 # }
+
+output "ecr_repository_urls" {
+  description = "All ECR repository URLs"
+  value       = module.ecr.repository_urls
+}
