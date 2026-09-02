@@ -53,9 +53,10 @@ module "security_groups" {
   module "iam" {
     source                  = "./modules/iam"
     cluster_name            = "natours"
+    aws_region              = var.aws_region
     # cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
-    # sqs_queue_arn           = module.sqs.queue_arn
-    # sqs_dlq_arn             = module.sqs.dlq_arn
+    sqs_queue_arn           = module.sqs.queue_arn
+    sqs_dlq_arn             = module.sqs.dlq_arn
 }
 
 module "eks" {

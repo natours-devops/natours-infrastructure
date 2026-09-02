@@ -1,7 +1,7 @@
 # Dead Letter Queue (DLQ)
 # Created first because main queue references it
 resource "aws_sqs_queue" "booking_dlq" {
-  name                       = "${var.project_name}-booking-confirmed-dlq"
+  name                       = "${var.project_name}-booking-confirmed-dlqs"
   message_retention_seconds  = 1209600  # 14 days
   visibility_timeout_seconds = 30
 
@@ -33,35 +33,35 @@ resource "aws_sqs_queue" "booking_confirmed" {
 # Queue Policy
 # Allows booking service to publish
 # Allows notification service to consume
-resource "aws_sqs_queue_policy" "booking_confirmed" {
-  queue_url = aws_sqs_queue.booking_confirmed.id
+# resource "aws_sqs_queue_policy" "booking_confirmed" {
+#   queue_url = aws_sqs_queue.booking_confirmed.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowBookingServicePublish"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.booking_service_role_arn
-        }
-        Action   = "sqs:SendMessage"
-        Resource = aws_sqs_queue.booking_confirmed.arn
-      },
-      {
-        Sid    = "AllowNotificationServiceConsume"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.notification_service_role_arn
-        }
-        Action = [
-          "sqs:ReceiveMessage",
-          "sqs:DeleteMessage",
-          "sqs:ChangeMessageVisibility",
-          "sqs:GetQueueAttributes"
-        ]
-        Resource = aws_sqs_queue.booking_confirmed.arn
-      }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Sid    = "AllowBookingServicePublish"
+#         Effect = "Allow"
+#         Principal = {
+#           AWS = var.booking_service_role_arn
+#         }
+#         Action   = "sqs:SendMessage"
+#         Resource = aws_sqs_queue.booking_confirmed.arn
+#       },
+#       {
+#         Sid    = "AllowNotificationServiceConsume"
+#         Effect = "Allow"
+#         Principal = {
+#           AWS = var.notification_service_role_arn
+#         }
+#         Action = [
+#           "sqs:ReceiveMessage",
+#           "sqs:DeleteMessage",
+#           "sqs:ChangeMessageVisibility",
+#           "sqs:GetQueueAttributes"
+#         ]
+#         Resource = aws_sqs_queue.booking_confirmed.arn
+#       }
+#     ]
+#   })
+# }
