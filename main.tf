@@ -6,7 +6,7 @@ locals {
 module "vpc" {
   source = "./modules/vpc"
 
-  vpc_cidr = "10.0.0.0/16"
+  vpc_cidr = var.vpc_cidr
   vpc_name = "natours_vpc"
 
   subnets = {
