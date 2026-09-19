@@ -1,19 +1,19 @@
 # Dead Letter Queue (DLQ)
 # Created first because main queue references it
 resource "aws_sqs_queue" "booking_dlq" {
-  name                       = "${var.project_name}-booking-confirmed-dlqs"
+  name                       = "${var.queue_name}-booking-confirmed-dlqs"
   message_retention_seconds  = 1209600  # 14 days
   visibility_timeout_seconds = 30
 
   tags = {
-    Name        = "${var.project_name}-booking-confirmed-dlq"
-    Project     = var.project_name
+    Name        = "${var.queue_name}-booking-confirmed-dlq"
+    Project     = var.queue_name
   }
 }
 
 # Main Queue
 resource "aws_sqs_queue" "booking_confirmed" {
-  name                       = "${var.project_name}-booking-confirmed"
+  name                       = "${var.queue_name}-booking-confirmed"
   message_retention_seconds  = 86400   # 1 day
   visibility_timeout_seconds = 30
   receive_wait_time_seconds  = 20      # long polling
@@ -25,8 +25,8 @@ resource "aws_sqs_queue" "booking_confirmed" {
   })
 
   tags = {
-    Name        = "${var.project_name}-booking-confirmed"
-    Project     = var.project_name
+    Name        = "${var.queue_name}-booking-confirmed"
+    Project     = var.queue_name
   }
 }
 
