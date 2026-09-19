@@ -75,7 +75,7 @@ resource "aws_iam_role_policy_attachment" "node_cloudwatch_policy" {
   role       = aws_iam_role.node_role.name
 }
 
-
+# ════════════════════════════════════════
 # ROLE 3 — ALB Controller Role
 # Method: EKS Pod Identity
 # Attaches to: kube-system/aws-load-balancer-controller
@@ -163,62 +163,63 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
   role       = aws_iam_role.alb_controller.name
 }
 
-# resource "aws_eks_pod_identity_association" "alb_controller" {
-#   cluster_name    = var.cluster_name
-#   namespace       = "kube-system"
-#   service_account = "aws-load-balancer-controller"
-#   role_arn        = aws_iam_role.alb_controller.arn
+resource "aws_eks_pod_identity_association" "alb_controller" {
+  cluster_name    = var.cluster_name
+  namespace       = "kube-system"
+  service_account = "aws-load-balancer-controller"
+  role_arn        = aws_iam_role.alb_controller.arn
 
-#   depends_on = [var.cluster_depends_on]
-# }
+  depends_on = [var.cluster_depends_on]
+}
 
+# ════════════════════════════════════════
 # ROLE 4 — Booking Service Role
 # Method: EKS Pod Identity
 # Attaches to: default/booking-service-sa
 # Permission: SQS publish only
 # ══════════════════════════════════════
-# resource "aws_iam_policy" "booking_sqs" {
-#   name        = "${var.cluster_name}-booking-sqs-policy"
-#   description = "Allows booking service to publish to SQS"
+resource "aws_iam_policy" "booking_sqs" {
+  name        = "${var.cluster_name}-booking-sqs-policy"
+  description = "Allows booking service to publish to SQS"
 
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [{
-#       Effect = "Allow"
-#       Action = [
-#         "sqs:SendMessage",
-#         "sqs:GetQueueAttributes",
-#         "sqs:GetQueueUrl"
-#       ]
-#       Resource = var.sqs_queue_arn
-#     }]
-#   })
-# }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "sqs:SendMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl"
+      ]
+      Resource = var.sqs_queue_arn
+    }]
+  })
+}
 
-# resource "aws_iam_role" "booking_service" {
-#   name               = "${var.cluster_name}-booking-service-role"
-#   assume_role_policy = local.pod_identity_trust_policy
-#   tags               = { Name = "${var.cluster_name}-booking-service-role" }
-# }
+resource "aws_iam_role" "booking_service" {
+  name               = "${var.cluster_name}-booking-service-role"
+  assume_role_policy = local.pod_identity_trust_policy
+  tags               = { Name = "${var.cluster_name}-booking-service-role" }
+}
 
-# resource "aws_iam_role_policy_attachment" "booking_sqs" {
-#   policy_arn = aws_iam_policy.booking_sqs.arn
-#   role       = aws_iam_role.booking_service.name
-# }
+resource "aws_iam_role_policy_attachment" "booking_sqs" {
+  policy_arn = aws_iam_policy.booking_sqs.arn
+  role       = aws_iam_role.booking_service.name
+}
 
-# resource "aws_iam_role_policy_attachment" "booking_secrets" {
-#   policy_arn = aws_iam_policy.secrets_manager.arn  
-#   role       = aws_iam_role.booking_service.name   
-# }
+resource "aws_iam_role_policy_attachment" "booking_secrets" {
+  policy_arn = aws_iam_policy.secrets_manager.arn  
+  role       = aws_iam_role.booking_service.name   
+}
 
-# resource "aws_eks_pod_identity_association" "booking_service" {
-#   cluster_name    = var.cluster_name
-#   namespace       = "default"
-#   service_account = "booking-service-sa"
-#   role_arn        = aws_iam_role.booking_service.arn
+resource "aws_eks_pod_identity_association" "booking_service" {
+  cluster_name    = var.cluster_name
+  namespace       = "default"
+  service_account = "booking-service-sa"
+  role_arn        = aws_iam_role.booking_service.arn
 
-#   depends_on = [var.cluster_depends_on]
-# }
+  depends_on = [var.cluster_depends_on]
+}
 
 # ════════════════════════════════════════
 # ROLE 5 — Notification Service Role
@@ -226,53 +227,53 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
 # Attaches to: default/notification-service-sa
 # Permission: SQS consume + delete
 # ════════════════════════════════════════
-# resource "aws_iam_policy" "notification_sqs" {
-#   name        = "${var.cluster_name}-notification-sqs-policy"
-#   description = "Allows notification service to consume from SQS"
+resource "aws_iam_policy" "notification_sqs" {
+  name        = "${var.cluster_name}-notification-sqs-policy"
+  description = "Allows notification service to consume from SQS"
 
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [{
-#       Effect = "Allow"
-#       Action = [
-#         "sqs:ReceiveMessage",
-#         "sqs:DeleteMessage",
-#         "sqs:GetQueueAttributes",
-#         "sqs:GetQueueUrl",
-#         "sqs:ChangeMessageVisibility"
-#       ]
-#       Resource = [
-#         var.sqs_queue_arn,
-#         var.sqs_dlq_arn
-#       ]
-#     }]
-#   })
-# }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl",
+        "sqs:ChangeMessageVisibility"
+      ]
+      Resource = [
+        var.sqs_queue_arn,
+        var.sqs_dlq_arn
+      ]
+    }]
+  })
+}
 
-# resource "aws_iam_role" "notification_service" {
-#   name               = "${var.cluster_name}-notification-service-role"
-#   assume_role_policy = local.pod_identity_trust_policy
-#   tags               = { Name = "${var.cluster_name}-notification-service-role" }
-# }
+resource "aws_iam_role" "notification_service" {
+  name               = "${var.cluster_name}-notification-service-role"
+  assume_role_policy = local.pod_identity_trust_policy
+  tags               = { Name = "${var.cluster_name}-notification-service-role" }
+}
 
-# resource "aws_iam_role_policy_attachment" "notification_sqs" {
-#   policy_arn = aws_iam_policy.notification_sqs.arn
-#   role       = aws_iam_role.notification_service.name
-# }
+resource "aws_iam_role_policy_attachment" "notification_sqs" {
+  policy_arn = aws_iam_policy.notification_sqs.arn
+  role       = aws_iam_role.notification_service.name
+}
 
-# resource "aws_iam_role_policy_attachment" "notification_secrets" {
-#   policy_arn = aws_iam_policy.secrets_manager.arn
-#   role       = aws_iam_role.notification_service.name 
-# }
+resource "aws_iam_role_policy_attachment" "notification_secrets" {
+  policy_arn = aws_iam_policy.secrets_manager.arn
+  role       = aws_iam_role.notification_service.name 
+}
 
-# resource "aws_eks_pod_identity_association" "notification_service" {
-#   cluster_name    = var.cluster_name
-#   namespace       = "default"
-#   service_account = "notification-service-sa"
-#   role_arn        = aws_iam_role.notification_service.arn
+resource "aws_eks_pod_identity_association" "notification_service" {
+  cluster_name    = var.cluster_name
+  namespace       = "default"
+  service_account = "notification-service-sa"
+  role_arn        = aws_iam_role.notification_service.arn
 
-#   depends_on = [var.cluster_depends_on]
-# }
+  depends_on = [var.cluster_depends_on]
+}
 
 # ════════════════════════════════════════
 # ROLE 6 — All Services Role
@@ -280,39 +281,39 @@ resource "aws_iam_role_policy_attachment" "alb_controller" {
 # Attaches to: default/all-services-sa
 # Permission: Secrets Manager read
 # ════════════════════════════════════════
-# resource "aws_iam_policy" "secrets_manager" {
-#   name        = "${var.cluster_name}-secrets-manager-policy"
-#   description = "Allows all services to read secrets from Secrets Manager"
+resource "aws_iam_policy" "secrets_manager" {
+  name        = "${var.cluster_name}-secrets-manager-policy"
+  description = "Allows all services to read secrets from Secrets Manager"
 
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [{
-#       Effect = "Allow"
-#       Action = [
-#         "secretsmanager:GetSecretValue",
-#         "secretsmanager:DescribeSecret"
-#       ]
-#       Resource = "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:natours/*"
-#     }]
-#   })
-# }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+      ]
+      Resource = "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:natours/*"
+    }]
+  })
+}
 
-# resource "aws_iam_role" "all_services" {
-#   name               = "${var.cluster_name}-all-services-role"
-#   assume_role_policy = local.pod_identity_trust_policy
-#   tags               = { Name = "${var.cluster_name}-all-services-role" }
-# }
+resource "aws_iam_role" "all_services" {
+  name               = "${var.cluster_name}-all-services-role"
+  assume_role_policy = local.pod_identity_trust_policy
+  tags               = { Name = "${var.cluster_name}-all-services-role" }
+}
 
-# resource "aws_iam_role_policy_attachment" "all_services_secrets" {
-#   policy_arn = aws_iam_policy.secrets_manager.arn
-#   role       = aws_iam_role.all_services.name
-# }
+resource "aws_iam_role_policy_attachment" "all_services_secrets" {
+  policy_arn = aws_iam_policy.secrets_manager.arn
+  role       = aws_iam_role.all_services.name
+}
 
-# resource "aws_eks_pod_identity_association" "all_services" {
-#   cluster_name    = var.cluster_name
-#   namespace       = "default"
-#   service_account = "all-services-sa"
-#   role_arn        = aws_iam_role.all_services.arn
+resource "aws_eks_pod_identity_association" "all_services" {
+  cluster_name    = var.cluster_name
+  namespace       = "default"
+  service_account = "all-services-sa"
+  role_arn        = aws_iam_role.all_services.arn
 
-#   depends_on = [var.cluster_depends_on]
-# }
+  depends_on = [var.cluster_depends_on]
+}

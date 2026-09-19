@@ -1,5 +1,5 @@
 locals {
-  project = "natours"
+  project_name = "natours"
 }
 
 
@@ -53,9 +53,10 @@ module "security_groups" {
   module "iam" {
     source                  = "./modules/iam"
     cluster_name            = "natours"
+    aws_region              = var.aws_region
     # cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
-    # sqs_queue_arn           = module.sqs.queue_arn
-    # sqs_dlq_arn             = module.sqs.dlq_arn
+    sqs_queue_arn           = module.sqs.queue_arn
+    sqs_dlq_arn             = module.sqs.dlq_arn
 }
 
 module "eks" {
@@ -85,12 +86,7 @@ module "ecr" {
   image_count_to_keep = 10
 }
 
-# output "private_subnet_ids" {
-#   description = "Private subnet IDs passed to the root"
-#   value       = module.vpc.private_subnet_ids
-# }
-
-output "ecr_repository_urls" {
-  description = "All ECR repository URLs"
-  value       = module.ecr.repository_urls
+module "sqs" {
+  source                        = "./modules/sqs"
+  project_name                  = "natours"
 }
