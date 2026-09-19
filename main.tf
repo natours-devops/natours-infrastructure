@@ -1,13 +1,8 @@
-locals {
-  project_name = "natours"
-}
-
-
 module "vpc" {
   source = "./modules/vpc"
 
   vpc_cidr = var.vpc_cidr
-  vpc_name = "natours_vpc"
+  vpc_name = "${var.project_name}_vpc"
 
   subnets = {
     "natours-public-us-east-1a" = {
@@ -35,10 +30,10 @@ module "vpc" {
     }
   }
   
-  rt_public_name = "natours_public_rt"
-  rt_private_name = "natours_private_rt"
-  igw_name = "natours-igw"
-  nat_name = "natours-nat"
+  rt_public_name  = "${var.project_name}_rt"
+  rt_private_name = "${var.project_name}_rt"
+  igw_name = "${var.project_name}-igw"
+  nat_name = "${var.project_name}-nat"
 }
 
 module "security_groups" {
@@ -46,13 +41,13 @@ module "security_groups" {
   vpc_id = module.vpc.vpc_id
   
   security_group_names = {
-    alb   = "natours-alb-sg"
+    alb   = "${var.project_name}-alb-sg"
   }
 }
 
   module "iam" {
     source                  = "./modules/iam"
-    cluster_name            = "natours"
+    cluster_name            = var.project_name
     aws_region              = var.aws_region
     # cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
     sqs_queue_arn           = module.sqs.queue_arn
@@ -61,7 +56,7 @@ module "security_groups" {
 
 module "eks" {
   source           = "./modules/eks"
-  cluster_name     = "natours"
+  cluster_name     = var.project_name
   vpc_id           = module.vpc.vpc_id
   private_subnets  = module.vpc.private_subnet_ids
   cluster_role_arn = module.iam.cluster_role_arn
@@ -87,6 +82,6 @@ module "ecr" {
 }
 
 module "sqs" {
-  source                        = "./modules/sqs"
-  queue_name                  = "natours"
+  source          = "./modules/sqs"
+  queue_name      = var.project_name
 }
