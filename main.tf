@@ -12,25 +12,25 @@ module "vpc" {
   subnets = {
     "natours-public-us-east-1a" = {
       cidr_block        = "10.0.1.0/24"
-      availability_zone = "us-east-1a"
+      availability_zone = "${var.aws-region}a"
       public            = true
     }
 
     "natours-public-us-east-1b" = {
       cidr_block        = "10.0.2.0/24"
-      availability_zone = "us-east-1b"
+      availability_zone = "${var.aws-region}b"
       public            = true
     }
 
     "natours-private-us-east-1a" = {
       cidr_block        = "10.0.3.0/24"
-      availability_zone = "us-east-1a"
+      availability_zone = "${var.aws-region}a"
       public            = false
     }
 
     "natours-private-us-east-1b" = {
       cidr_block        = "10.0.4.0/24"
-      availability_zone = "us-east-1b"
+      availability_zone = "${var.aws-region}b"
       public            = false
     }
   }
