@@ -89,6 +89,4 @@ module "ecr" {
 module "sqs" {
   source                        = "./modules/sqs"
   project_name                  = "natours"
-  booking_service_role_arn      = module.iam.booking_service_role_arn
-  notification_service_role_arn = module.iam.notification_service_role_arn
 }
