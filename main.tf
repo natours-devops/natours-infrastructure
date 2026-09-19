@@ -85,3 +85,20 @@ module "sqs" {
   source          = "./modules/sqs"
   queue_name      = var.project_name
 }
+
+module "pod-identity" {
+  source = "./modules/pod-identity"
+  
+  cluster_name = module.eks.cluster_name
+  
+  alb_controller_role_arn = module.iam.alb_controller_role_arn
+  booking_service_role_arn = module.iam.booking_service_role_arn
+  notification_service_role_arn = module.iam.notification_service_role_arn
+  all_services_role_arn = mdoule.iam.all_services_role_arn
+  
+  application_namespace = "default"
+  depends_on = [module.eks]
+  
+  
+  
+}
