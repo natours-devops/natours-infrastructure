@@ -30,8 +30,8 @@ module "vpc" {
     }
   }
   
-  rt_public_name  = "${var.project_name}_rt"
-  rt_private_name = "${var.project_name}_rt"
+  rt_public_name  = "${var.project_name}_public_rt"
+  rt_private_name = "${var.project_name}_private_rt"
   igw_name = "${var.project_name}-igw"
   nat_name = "${var.project_name}-nat"
 }
@@ -88,17 +88,31 @@ module "sqs" {
 
 module "pod-identity" {
   source = "./modules/pod-identity"
-  
+
   cluster_name = module.eks.cluster_name
-  
-  alb_controller_role_arn = module.iam.alb_controller_role_arn
-  booking_service_role_arn = module.iam.booking_service_role_arn
-  notification_service_role_arn = module.iam.notification_service_role_arn
-  all_services_role_arn = mdoule.iam.all_services_role_arn
-  
-  application_namespace = "default"
+
+  associations = {
+    alb_controller = {
+      namespace       = "kube-system"
+      service_account = "aws-load-balancer-controller"
+      role_arn        = module.iam.alb_controller_role_arn
+    }
+    booking_service = {
+      namespace       = "default"
+      service_account = "booking-service-sa"
+      role_arn        = module.iam.booking_service_role_arn
+    }
+    notification_service = {
+      namespace       = "default"
+      service_account = "notification-service-sa"
+      role_arn        = module.iam.notification_service_role_arn
+    }
+    all_services = {
+      namespace       = "default"
+      service_account = "all-services-sa"
+      role_arn        = module.iam.all_services_role_arn
+    }
+  }
+
   depends_on = [module.eks]
-  
-  
-  
 }
