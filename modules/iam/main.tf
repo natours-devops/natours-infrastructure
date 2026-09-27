@@ -117,13 +117,19 @@ resource "aws_iam_policy" "alb_controller" {
           "ec2:DescribeInstances",
           "ec2:DescribeNetworkInterfaces",
           "ec2:DescribeTags",
+          "ec2:DescribeRouteTables",
+          "ec2:GetSecurityGroupsForVpc",
           "elasticloadbalancing:DescribeLoadBalancers",
           "elasticloadbalancing:DescribeLoadBalancerAttributes",
           "elasticloadbalancing:DescribeListeners",
           "elasticloadbalancing:DescribeRules",
           "elasticloadbalancing:DescribeTargetGroups",
           "elasticloadbalancing:DescribeTargetHealth",
-          "elasticloadbalancing:DescribeTags"
+          "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:DescribeTargetGroupAttributes",
+          "elasticloadbalancing:DescribeListenerAttributes",
+          "elasticloadbalancing:ModifyRule"
+        
         ]
         Resource = "*"
       },
